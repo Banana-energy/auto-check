@@ -42,6 +42,13 @@ module.exports = class AutoCheckInClass {
     const browser = await puppeteer.launch({
       headless: true,
       userDataDir: this.userDataPath,
+      args: [
+        '--no-sandbox',                    // 沙盒模式
+        '--disable-setuid-sandbox',        // uid沙盒
+        '--disable-dev-shm-usage',         // 创建临时文件共享内存
+        '--disable-accelerated-2d-canvas', // canvas渲染
+        '--disable-gpu',                   // GPU硬件加速
+      ]
     })
     const page = (await browser.pages())[0]
     const blockedResourceTypes = [
