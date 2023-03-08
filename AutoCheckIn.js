@@ -109,6 +109,7 @@ module.exports = class AutoCheckInClass {
   async autoCheckIn() {
     const diff = dayjs().diff(dayjs(this.preSendTime), 'millisecond')
     if (diff > AutoCheckInClass.HalfHour) {
+      console.log(`上次发送时间：` + dayjs(this.preSendTime).format('YYYY-MM-DD HH:mm:ss'))
       this.clearTimeout()
       await this.sendMessage()
       this.intervalTimer = setInterval(() => {
