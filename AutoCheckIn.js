@@ -88,11 +88,9 @@ module.exports = class AutoCheckInClass {
       await page.reload()
       this.input = await page.waitForSelector(this.inputSelector)
       this.button = await page.$(this.sendButtonSelector)
-      return true
     } else {
       this.input = result
       this.button = await page.$(this.sendButtonSelector)
-      return true
     }
   }
 
