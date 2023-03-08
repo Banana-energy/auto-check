@@ -59,6 +59,7 @@ module.exports = class AutoCheckInClass {
     const result = await Promise.race([page.waitForSelector(this.loginButtonSelector), page.waitForSelector(this.inputSelector)])
     const isNotLogin = await result.evaluate(node => node.textContent)
     if (isNotLogin) {
+console.log(result)
       await result.click()
       const response = await page.waitForResponse((
           response => response.url() === 'https://passport.douyu.com/scan/generateCode' && response.status() === 200
