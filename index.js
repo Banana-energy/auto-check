@@ -1,10 +1,10 @@
 const AutoCheckInClass = require("./AutoCheckIn");
 
-function main() {
+async function main() {
   const banana = new AutoCheckInClass()
-  banana.getInput().then(async () => {
-    await banana.sendMessage()
-  })
+  await banana.getInput()
+  await banana.sendMessage()
+  process.exit(0)
 }
 
 main()
