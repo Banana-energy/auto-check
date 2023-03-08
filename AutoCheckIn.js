@@ -24,6 +24,8 @@ module.exports = class AutoCheckInClass {
   sendButtonSelector = '#layout-Player-aside > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > div.ChatSend-button'
   inputSelector = '#layout-Player-aside > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > textarea'
   loginButtonSelector = '#layout-Player-aside > div.layout-Player-chat > div > div.ChatSpeak > div.ChatSend > div.MuteStatus.is-noLogin > span'
+  loginImgSelector = '#loginbox > div.scancode-login.status-scan.js-scancode-box > div.loginbox-scanwrap > div.scancode-middle > div > div.scancode-qrcode > div > div.loginbox-scancontent > div > div.qrcode-img > div > canvas'
+
 
   constructor() {
     const preSendTime = fs.readFileSync('time.log', {
@@ -63,7 +65,7 @@ module.exports = class AutoCheckInClass {
     ]
     await page.setRequestInterception(true)
     page.on('request', (request) => {
-      if (blockedResourceTypes.includes(request.resourceType())) {
+      if (blockedResourceTypes.includes(request.resourceType().toString())) {
         request.abort()
       } else {
         request.continue()
@@ -76,12 +78,22 @@ module.exports = class AutoCheckInClass {
       // TODO
       //  发送二维码给邮箱
       //  扫码完成后，捕获回调
-      sendMail('372728339@qq.com', '登录', '请检查是否登录')
-      return false
+      await result.click()
+      const response = await page.waitForResponse((
+          response => response.url() === 'https://passport.douyu.com/scan/generateCode' && response.status() === 200
+      ))
+      const loginUrl = (await response.json()).data.url
+      sendMail('372728339@qq.com', '登录', loginUrl)
+      await page.waitForResponse((response => response.url() === 'https://ucp.douyucdn.cn/ucp.do' && response.status() === 200))
+      await page.reload()
+      this.input = await page.waitForSelector(this.inputSelector)
+      this.button = await page.$(this.sendButtonSelector)
+      return true
+    } else {
+      this.input = result
+      this.button = await page.$(this.sendButtonSelector)
+      return true
     }
-    this.input = result
-    this.button = await page.$(this.sendButtonSelector)
-    return true
   }
 
   async sendMessage() {
