@@ -26,35 +26,36 @@ module.exports = class AutoCheckInClass {
 
   async getInput() {
     const browser = await puppeteer.launch({
-      headless: true,
+      headless: false,
+      devtools: true,
       userDataDir: this.userDataPath,
-      args: [
-        '--no-sandbox',                    // 沙盒模式
-        '--disable-setuid-sandbox',        // uid沙盒
-        '--disable-dev-shm-usage',         // 创建临时文件共享内存
-        '--disable-accelerated-2d-canvas', // canvas渲染
-        '--disable-gpu',                   // GPU硬件加速
-      ]
+      // args: [
+      //   '--no-sandbox',                    // 沙盒模式
+      //   '--disable-setuid-sandbox',        // uid沙盒
+      //   '--disable-dev-shm-usage',         // 创建临时文件共享内存
+      //   '--disable-accelerated-2d-canvas', // canvas渲染
+      //   '--disable-gpu',                   // GPU硬件加速
+      // ]
     })
     const page = (await browser.pages())[0]
-    const blockedResourceTypes = [
-      'image',
-      'media',
-      'font',
-      'texttrack',
-      'object',
-      'beacon',
-      'csp_report',
-      'imageset',
-    ]
-    await page.setRequestInterception(true)
-    page.on('request', (request) => {
-      if (blockedResourceTypes.includes(request.resourceType().toString())) {
-        request.abort()
-      } else {
-        request.continue()
-      }
-    })
+    // const blockedResourceTypes = [
+    //   'image',
+    //   'media',
+    //   'font',
+    //   'texttrack',
+    //   'object',
+    //   'beacon',
+    //   'csp_report',
+    //   'imageset',
+    // ]
+    // await page.setRequestInterception(true)
+    // page.on('request', (request) => {
+    //   if (blockedResourceTypes.includes(request.resourceType().toString())) {
+    //     request.abort()
+    //   } else {
+    //     request.continue()
+    //   }
+    // })
     await page.goto(this.page)
     const result = await Promise.race([page.waitForSelector(this.loginButtonSelector), page.waitForSelector(this.inputSelector)])
     const isNotLogin = await result.evaluate(node => node.textContent)
@@ -65,10 +66,14 @@ module.exports = class AutoCheckInClass {
       ))
       const loginUrl = (await response.json()).data.url
       sendMail('372728339@qq.com', '登录', loginUrl)
-      await page.waitForResponse((response => response.url() === 'https://ucp.douyucdn.cn/ucp.do' && response.status() === 200))
-      await page.reload()
-      this.input = await page.waitForSelector(this.inputSelector)
-      this.button = await page.$(this.sendButtonSelector)
+      return new Promise(resolve => {
+        setTimeout(async () => {
+          await page.reload()
+          this.input = await page.waitForSelector(this.inputSelector)
+          this.button = await page.$(this.sendButtonSelector)
+          resolve()
+        }, 1000 * 15)
+      })
     } else {
       this.input = result
       this.button = await page.$(this.sendButtonSelector)
