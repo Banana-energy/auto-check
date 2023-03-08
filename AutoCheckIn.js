@@ -26,8 +26,7 @@ module.exports = class AutoCheckInClass {
 
   async getInput() {
     const browser = await puppeteer.launch({
-      headless: false,
-      devtools: true,
+      headless: true,
       userDataDir: this.userDataPath,
       args: [
         '--no-sandbox',                    // 沙盒模式
