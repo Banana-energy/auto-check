@@ -2,16 +2,6 @@ const puppeteer = require('puppeteer')
 const dayjs = require('dayjs')
 const sendMail = require('./sendMail')
 
-process.on('uncaughtException', (err) => {
-  console.log(err);
-  sendMail('372728339@qq.com', '程序报错', '程序报错，请重启')
-})
-
-process.on('unhandledRejection', (err) => {
-  console.log(err);
-  sendMail('372728339@qq.com', '程序报错', '程序报错，请重启')
-})
-
 module.exports = class AutoCheckInClass {
   input
   button
@@ -59,7 +49,6 @@ module.exports = class AutoCheckInClass {
     const result = await Promise.race([page.waitForSelector(this.loginButtonSelector), page.waitForSelector(this.inputSelector)])
     const isNotLogin = await result.evaluate(node => node.textContent)
     if (isNotLogin) {
-console.log(result)
       await result.click()
       const response = await page.waitForResponse((
           response => response.url() === 'https://passport.douyu.com/scan/generateCode' && response.status() === 200
