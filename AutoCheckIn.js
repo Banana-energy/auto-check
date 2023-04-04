@@ -1,6 +1,7 @@
 const puppeteer = require('puppeteer')
 const dayjs = require('dayjs')
 const sendMail = require('./sendMail')
+const {writeFileSync} = require('fs')
 
 module.exports = class AutoCheckInClass {
   input
@@ -76,6 +77,6 @@ module.exports = class AutoCheckInClass {
     }
     await this.input.type('#打卡')
     await this.button.click()
-    console.log(`当前发送时间：` + dayjs().format('YYYY-MM-DD HH:mm:ss'))
+    writeFileSync(__dirname + '/time.log', dayjs().format('YYYY-MM-DD HH:mm:ss'))
   }
 }
